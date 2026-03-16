@@ -8,6 +8,7 @@ const personaOptions = ["Business Owner", "Marketing Director", "Ecommerce Brand
 const formatOptions = ["Blog Post", "Landing Page", "Pillar Page", "How-To Guide", "Listicle", "Case Study"];
 
 const auditChecklist = [
+  // Traditional SEO (indices 0-2)
   { category: "Technical SEO", items: [
     "Page loads in under 3 seconds",
     "Mobile-friendly (passes Google Mobile-Friendly Test)",
@@ -17,6 +18,9 @@ const auditChecklist = [
     "No broken links (404 errors)",
     "Canonical tags set correctly",
     "Structured data / schema markup implemented",
+    "JSON-LD Article or BlogPosting schema on content pages",
+    "FAQ schema for Q&A sections",
+    "Open Graph tags complete (og:title, og:description, og:type, og:image)",
   ]},
   { category: "On-Page SEO", items: [
     "Primary keyword in title tag",
@@ -38,6 +42,48 @@ const auditChecklist = [
     "No filler language or jargon soup",
     "Clear CTA at the end",
     "Formatted for scannability (bullets, bold, short paragraphs)",
+  ]},
+  // AEO / LLM Citation Readiness (indices 3-8)
+  { category: "AEO: Front-Loading (Ski Ramp)", items: [
+    "Key definitions and conclusions appear in first 30% of content",
+    "Topic defined in the first 1-2 paragraphs",
+    "No long narrative intros or throat-clearing openers",
+    "Most entity-rich, definitive content placed up front",
+    "Conclusion/key takeaway stated early, not buried at bottom",
+  ]},
+  { category: "AEO: Definitive Language", items: [
+    "Uses direct, factual \"X is...\" and \"X refers to...\" patterns",
+    "No hedging words: might, perhaps, could be, arguably",
+    "No filler phrases: \"it goes without saying\", \"as we all know\"",
+    "No hype language: amazing, revolutionary, game-changing, groundbreaking",
+    "No vague openers: \"In today's fast-paced world...\", \"In this day and age...\"",
+  ]},
+  { category: "AEO: Question + Answer Structure", items: [
+    "50%+ of H2 headings framed as questions",
+    "Direct answer in first sentence after each question heading",
+    "Key entities mirrored between heading and answer paragraph",
+    "Questions match real user queries (What is X? How does X work?)",
+  ]},
+  { category: "AEO: Entity Richness", items: [
+    "Named specific tools, brands, and frameworks (not \"many tools\")",
+    "Includes statistics and data points with sources",
+    "References specific people, companies, or industry terms",
+    "Entity density above 15% (proper nouns, stats, branded terms)",
+    "Replaces \"best practices\" with named, concrete examples",
+  ]},
+  { category: "AEO: Balanced Sentiment", items: [
+    "Analyst tone: fact + interpretation (not purely objective or emotional)",
+    "Includes balanced perspective: \"however\", \"on the other hand\"",
+    "Presents trade-offs and comparisons, not just praise",
+    "No excessive promotional or hype language",
+    "Subjectivity score balanced (~0.47 target)",
+  ]},
+  { category: "AEO: Business-Grade Writing", items: [
+    "Flesch-Kincaid grade level around 16 (business-grade, not academic)",
+    "Average sentence length 12-22 words",
+    "Clear subject-verb-object sentence structures",
+    "Paragraphs between 30-80 words with substantive content",
+    "Uses bullet points and numbered lists for key information",
   ]},
 ];
 
@@ -979,7 +1025,7 @@ function StopSlopTab({ dark }: { dark: boolean }) {
     formData.append('file', file);
 
     try {
-      const res = await fetch('http://localhost:3000/api/analyze-document', { method: 'POST', body: formData });
+      const res = await fetch('/api/analyze-document', { method: 'POST', body: formData });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Analysis failed'); return; }
 
@@ -989,7 +1035,7 @@ function StopSlopTab({ dark }: { dark: boolean }) {
       saveToHistory(data.result, data.fileName, 'document', data.documentText || '');
       setView('results');
     } catch {
-      setError('Failed to connect. Make sure the grader API is running on localhost:3000.');
+      setError('Failed to analyze. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -1001,7 +1047,7 @@ function StopSlopTab({ dark }: { dark: boolean }) {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:3000/api/analyze-url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url.trim() }) });
+      const res = await fetch('/api/analyze-url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url.trim() }) });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Analysis failed'); return; }
 
@@ -1011,7 +1057,7 @@ function StopSlopTab({ dark }: { dark: boolean }) {
       saveToHistory(data.result, data.url || url, 'url', data.documentText || '', data.url);
       setView('results');
     } catch {
-      setError('Failed to connect. Make sure the grader API is running on localhost:3000.');
+      setError('Failed to analyze. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -1197,6 +1243,12 @@ export default function SEOToolsPage() {
 
   const totalChecked = Object.values(checkedItems).filter(Boolean).length;
   const totalItems = auditChecklist.reduce((sum, cat) => sum + cat.items.length, 0);
+  const seoCategories = auditChecklist.slice(0, 3);
+  const aeoCategories = auditChecklist.slice(3);
+  const seoChecked = seoCategories.reduce((sum, cat) => sum + cat.items.filter((item) => checkedItems[item]).length, 0);
+  const seoTotal = seoCategories.reduce((sum, cat) => sum + cat.items.length, 0);
+  const aeoChecked = aeoCategories.reduce((sum, cat) => sum + cat.items.filter((item) => checkedItems[item]).length, 0);
+  const aeoTotal = aeoCategories.reduce((sum, cat) => sum + cat.items.length, 0);
 
   const [activeTab, setActiveTab] = useState<"brief" | "audit" | "reference" | "grader">("brief");
 
@@ -1434,12 +1486,28 @@ export default function SEOToolsPage() {
                 style={{ width: `${totalItems > 0 ? (totalChecked / totalItems) * 100 : 0}%` }}
               />
             </div>
+            <div className="flex items-center gap-4 mt-3">
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${dark ? "bg-blue-500/10 text-blue-400" : "bg-blue-50 text-blue-700"}`}>SEO</span>
+                <span className={`text-xs ${dark ? "text-slate-400" : "text-slate-500"}`}>{seoChecked} / {seoTotal}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${dark ? "bg-purple-500/10 text-purple-400" : "bg-purple-50 text-purple-700"}`}>AEO</span>
+                <span className={`text-xs ${dark ? "text-slate-400" : "text-slate-500"}`}>{aeoChecked} / {aeoTotal}</span>
+              </div>
+            </div>
             {totalChecked === totalItems && totalItems > 0 && (
-              <p className="mt-2 text-sm font-medium text-emerald-500">All checks passed. Content is SEO-ready.</p>
+              <p className="mt-2 text-sm font-medium text-emerald-500">All checks passed. Content is SEO + AEO ready.</p>
             )}
           </div>
 
-          {auditChecklist.map((category) => (
+          {/* Traditional SEO Section Header */}
+          <div className="flex items-center gap-3">
+            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-wide ${dark ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" : "bg-blue-50 text-blue-700 border border-blue-200"}`}>Traditional SEO</span>
+            <div className={`flex-1 h-px ${dark ? "bg-[#1e293b]" : "bg-slate-200"}`} />
+          </div>
+
+          {seoCategories.map((category) => (
             <div key={category.category} className={`rounded-xl border shadow-sm ${dark ? "bg-[#111827] border-[#1e293b]" : "bg-white border-slate-200"}`}>
               <div className={`border-b px-6 py-4 ${dark ? "border-[#1e293b]" : "border-slate-100"}`}>
                 <div className="flex items-center justify-between">
@@ -1462,6 +1530,49 @@ export default function SEOToolsPage() {
                       checked={!!checkedItems[item]}
                       onChange={() => toggleCheck(item)}
                       className="h-4 w-4 rounded border-slate-300 text-blue-500 focus:ring-blue-500"
+                    />
+                    <span className={`text-sm ${
+                      checkedItems[item]
+                        ? dark ? "text-slate-500 line-through" : "text-slate-400 line-through"
+                        : dark ? "text-slate-300" : "text-slate-700"
+                    }`}>
+                      {item}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* AEO Section Header */}
+          <div className="flex items-center gap-3 mt-4">
+            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-wide ${dark ? "bg-purple-500/10 text-purple-400 border border-purple-500/20" : "bg-purple-50 text-purple-700 border border-purple-200"}`}>AEO / LLM Citation Readiness</span>
+            <div className={`flex-1 h-px ${dark ? "bg-[#1e293b]" : "bg-slate-200"}`} />
+          </div>
+
+          {aeoCategories.map((category) => (
+            <div key={category.category} className={`rounded-xl border shadow-sm ${dark ? "bg-[#111827] border-[#1e293b]" : "bg-white border-slate-200"}`}>
+              <div className={`border-b px-6 py-4 ${dark ? "border-[#1e293b]" : "border-slate-100"}`}>
+                <div className="flex items-center justify-between">
+                  <h2 className={`text-sm font-semibold uppercase tracking-wider ${dark ? "text-slate-500" : "text-slate-400"}`}>{category.category}</h2>
+                  <span className={`text-xs ${dark ? "text-slate-500" : "text-slate-400"}`}>
+                    {category.items.filter((item) => checkedItems[item]).length} / {category.items.length}
+                  </span>
+                </div>
+              </div>
+              <div className={`divide-y ${dark ? "divide-[#1e293b]" : "divide-slate-50"}`}>
+                {category.items.map((item) => (
+                  <label
+                    key={item}
+                    className={`flex cursor-pointer items-center gap-3 px-6 py-3.5 transition-colors ${
+                      dark ? "hover:bg-[#1a2234]" : "hover:bg-slate-50"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={!!checkedItems[item]}
+                      onChange={() => toggleCheck(item)}
+                      className="h-4 w-4 rounded border-slate-300 text-purple-500 focus:ring-purple-500"
                     />
                     <span className={`text-sm ${
                       checkedItems[item]
