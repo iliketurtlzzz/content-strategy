@@ -112,6 +112,7 @@ export default function ClientsPage() {
   const [wizardData, setWizardData] = useState<Omit<Client, "id" | "contentCount">>({ ...emptyWizardClient });
   const [wizardIcpDraft, setWizardIcpDraft] = useState<Omit<ICP, "id">>({ name: "", role: "", companySize: "", industry: "", ageRange: "", painPoints: "", contentPreferences: "" });
   const [editingClientId, setEditingClientId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const selectedClient = clients.find((c) => c.id === selectedClientId) || null;
 
@@ -261,7 +262,38 @@ export default function ClientsPage() {
                   }`}>
                     Edit
                   </button>
+                  {clients.length > 1 && (
+                    <button onClick={() => setDeleteConfirmId(client.id)} className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors duration-200 ${
+                      dark ? "border-red-500/20 text-red-400 hover:bg-red-500/10" : "border-red-200 text-red-600 hover:bg-red-50"
+                    }`}>
+                      Delete
+                    </button>
+                  )}
                 </div>
+                {deleteConfirmId === client.id && (
+                  <div className={`mt-3 rounded-lg border p-3 ${dark ? "border-red-500/20 bg-red-500/5" : "border-red-200 bg-red-50"}`}>
+                    <p className={`text-xs mb-2 ${dark ? "text-red-400" : "text-red-700"}`}>Are you sure? This cannot be undone.</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setClients((prev) => prev.filter((c) => c.id !== client.id));
+                          setDeleteConfirmId(null);
+                        }}
+                        className="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600 transition-colors"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirmId(null)}
+                        className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                          dark ? "border-[#1e293b] text-slate-300 hover:bg-[#1a2234]" : "border-slate-200 text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

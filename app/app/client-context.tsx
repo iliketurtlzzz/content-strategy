@@ -26,7 +26,7 @@ export interface ContentItem {
 }
 
 export interface CalendarItem {
-  day: number;
+  id: string;
   title: string;
   pillar: string;
   platform: string;
@@ -71,9 +71,11 @@ export interface FullClient {
   cadence: { platform: string; target: string; current: number; max: number; icon: string }[];
   // Content
   recentContent: ContentItem[];
-  calendarItems: Record<number, CalendarItem[]>;
+  calendarItems: Record<string, CalendarItem[]>;
   // Ideation
   topics: Topic[];
+  // Custom platforms for calendar filters
+  customPlatforms: string[];
 }
 
 /* ────────────────────── Legacy alias kept for layout.tsx ────────────────────── */
@@ -211,54 +213,56 @@ const defaultClients: FullClient[] = [
     ],
 
     calendarItems: {
-      2: [{ day: 2, title: "Weekly SEO Tip: Internal Linking Strategy", pillar: "Education", platform: "LinkedIn", status: "Published", time: "9:00 AM" }],
-      3: [{ day: 3, title: "Carousel: 5 Signs Your Website Needs a Refresh", pillar: "Awareness", platform: "Instagram", status: "Published", time: "12:00 PM" }],
-      4: [
-        { day: 4, title: "How We Increased Ecommerce Revenue 280% with Email", pillar: "Authority", platform: "Blog", status: "Published", time: "10:00 AM" },
-        { day: 4, title: "Thread: Email marketing myths debunked", pillar: "Education", platform: "X/Twitter", status: "Published", time: "2:00 PM" },
+      "2026-03-02": [{ id: "mw-cal-1", title: "Weekly SEO Tip: Internal Linking Strategy", pillar: "Education", platform: "LinkedIn", status: "Published", time: "9:00 AM" }],
+      "2026-03-03": [{ id: "mw-cal-2", title: "Carousel: 5 Signs Your Website Needs a Refresh", pillar: "Awareness", platform: "Instagram", status: "Published", time: "12:00 PM" }],
+      "2026-03-04": [
+        { id: "mw-cal-3", title: "How We Increased Ecommerce Revenue 280% with Email", pillar: "Authority", platform: "Blog", status: "Published", time: "10:00 AM" },
+        { id: "mw-cal-4", title: "Thread: Email marketing myths debunked", pillar: "Education", platform: "X/Twitter", status: "Published", time: "2:00 PM" },
       ],
-      5: [{ day: 5, title: "GA4 Transition: What Changed and Why It Matters", pillar: "Education", platform: "LinkedIn", status: "Published", time: "9:00 AM" }],
-      6: [{ day: 6, title: "Client Spotlight: B2B SaaS Lead Gen Results", pillar: "Authority", platform: "Instagram", status: "Published", time: "11:00 AM" }],
-      9: [
-        { day: 9, title: "Blog: Why Your SEO Agency Might Be Wasting Your Budget", pillar: "Education", platform: "Blog", status: "Published", time: "10:00 AM" },
-        { day: 9, title: "LinkedIn Poll: Biggest marketing challenge in 2026?", pillar: "Awareness", platform: "LinkedIn", status: "Published", time: "1:00 PM" },
+      "2026-03-05": [{ id: "mw-cal-5", title: "GA4 Transition: What Changed and Why It Matters", pillar: "Education", platform: "LinkedIn", status: "Published", time: "9:00 AM" }],
+      "2026-03-06": [{ id: "mw-cal-6", title: "Client Spotlight: B2B SaaS Lead Gen Results", pillar: "Authority", platform: "Instagram", status: "Published", time: "11:00 AM" }],
+      "2026-03-09": [
+        { id: "mw-cal-7", title: "Blog: Why Your SEO Agency Might Be Wasting Your Budget", pillar: "Education", platform: "Blog", status: "Published", time: "10:00 AM" },
+        { id: "mw-cal-8", title: "LinkedIn Poll: Biggest marketing challenge in 2026?", pillar: "Awareness", platform: "LinkedIn", status: "Published", time: "1:00 PM" },
       ],
-      10: [{ day: 10, title: "Reel: 60-Second Paid Media Tip", pillar: "Education", platform: "Instagram", status: "Published", time: "12:00 PM" }],
-      11: [{ day: 11, title: "Q1 Paid Media Benchmarks for B2B SaaS", pillar: "Authority", platform: "LinkedIn", status: "Published", time: "9:00 AM" }],
-      12: [{ day: 12, title: "5 GA4 Reports Every Marketer Needs", pillar: "Education", platform: "Blog", status: "In Review", time: "10:00 AM" }],
-      13: [{ day: 13, title: "Carousel: MarketWake Team at Atlanta Tech Week", pillar: "Awareness", platform: "Instagram", status: "Published", time: "3:00 PM" }],
-      14: [{ day: 14, title: "Newsletter: March Digital Marketing Roundup", pillar: "Education", platform: "Email", status: "Published", time: "8:00 AM" }],
-      16: [
-        { day: 16, title: "How to Build a Content Calendar That Actually Works", pillar: "Education", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
-        { day: 16, title: "Thread: Unpopular SEO opinions for 2026", pillar: "Awareness", platform: "X/Twitter", status: "Published", time: "11:00 AM" },
+      "2026-03-10": [{ id: "mw-cal-9", title: "Reel: 60-Second Paid Media Tip", pillar: "Education", platform: "Instagram", status: "Published", time: "12:00 PM" }],
+      "2026-03-11": [{ id: "mw-cal-10", title: "Q1 Paid Media Benchmarks for B2B SaaS", pillar: "Authority", platform: "LinkedIn", status: "Published", time: "9:00 AM" }],
+      "2026-03-12": [{ id: "mw-cal-11", title: "5 GA4 Reports Every Marketer Needs", pillar: "Education", platform: "Blog", status: "In Review", time: "10:00 AM" }],
+      "2026-03-13": [{ id: "mw-cal-12", title: "Carousel: MarketWake Team at Atlanta Tech Week", pillar: "Awareness", platform: "Instagram", status: "Published", time: "3:00 PM" }],
+      "2026-03-14": [{ id: "mw-cal-13", title: "Newsletter: March Digital Marketing Roundup", pillar: "Education", platform: "Email", status: "Published", time: "8:00 AM" }],
+      "2026-03-16": [
+        { id: "mw-cal-14", title: "How to Build a Content Calendar That Actually Works", pillar: "Education", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
+        { id: "mw-cal-15", title: "Thread: Unpopular SEO opinions for 2026", pillar: "Awareness", platform: "X/Twitter", status: "Published", time: "11:00 AM" },
       ],
-      17: [{ day: 17, title: "Behind the Scenes: How We Drove 340% Organic Growth", pillar: "Authority", platform: "Instagram", status: "Scheduled", time: "12:00 PM" }],
-      18: [
-        { day: 18, title: "Atlanta Tech Scene: Digital Marketing Trends", pillar: "Awareness", platform: "LinkedIn", status: "Draft", time: "9:00 AM" },
-        { day: 18, title: "Blog: The Real Cost of Bad Website Performance", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
+      "2026-03-17": [{ id: "mw-cal-16", title: "Behind the Scenes: How We Drove 340% Organic Growth", pillar: "Authority", platform: "Instagram", status: "Scheduled", time: "12:00 PM" }],
+      "2026-03-18": [
+        { id: "mw-cal-17", title: "Atlanta Tech Scene: Digital Marketing Trends", pillar: "Awareness", platform: "LinkedIn", status: "Draft", time: "9:00 AM" },
+        { id: "mw-cal-18", title: "Blog: The Real Cost of Bad Website Performance", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
       ],
-      19: [{ day: 19, title: "Carousel: SEO Checklist for New Websites", pillar: "Education", platform: "Instagram", status: "Scheduled", time: "12:00 PM" }],
-      20: [
-        { day: 20, title: "Free SEO Audit: Is Your Site Leaving Money on the Table?", pillar: "Conversion", platform: "Email", status: "Scheduled", time: "8:00 AM" },
-        { day: 20, title: "Case Study: Healthcare Client PPC Results", pillar: "Authority", platform: "LinkedIn", status: "Scheduled", time: "10:00 AM" },
+      "2026-03-19": [{ id: "mw-cal-19", title: "Carousel: SEO Checklist for New Websites", pillar: "Education", platform: "Instagram", status: "Scheduled", time: "12:00 PM" }],
+      "2026-03-20": [
+        { id: "mw-cal-20", title: "Free SEO Audit: Is Your Site Leaving Money on the Table?", pillar: "Conversion", platform: "Email", status: "Scheduled", time: "8:00 AM" },
+        { id: "mw-cal-21", title: "Case Study: Healthcare Client PPC Results", pillar: "Authority", platform: "LinkedIn", status: "Scheduled", time: "10:00 AM" },
       ],
-      23: [
-        { day: 23, title: "Blog: Shopify vs WooCommerce in 2026", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
-        { day: 23, title: "Quick Tip: Meta Ads Creative Testing Framework", pillar: "Education", platform: "LinkedIn", status: "Scheduled", time: "9:00 AM" },
+      "2026-03-23": [
+        { id: "mw-cal-22", title: "Blog: Shopify vs WooCommerce in 2026", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
+        { id: "mw-cal-23", title: "Quick Tip: Meta Ads Creative Testing Framework", pillar: "Education", platform: "LinkedIn", status: "Scheduled", time: "9:00 AM" },
       ],
-      24: [{ day: 24, title: "Reel: Before/After Website Redesign", pillar: "Authority", platform: "Instagram", status: "Draft", time: "1:00 PM" }],
-      25: [{ day: 25, title: "Thread: What we learned spending $500K on Google Ads", pillar: "Authority", platform: "X/Twitter", status: "Draft", time: "11:00 AM" }],
-      26: [
-        { day: 26, title: "Webinar Promo: Mastering GA4 for Marketers", pillar: "Conversion", platform: "LinkedIn", status: "Draft", time: "9:00 AM" },
-        { day: 26, title: "Webinar Promo: Mastering GA4 for Marketers", pillar: "Conversion", platform: "Instagram", status: "Draft", time: "12:00 PM" },
+      "2026-03-24": [{ id: "mw-cal-24", title: "Reel: Before/After Website Redesign", pillar: "Authority", platform: "Instagram", status: "Draft", time: "1:00 PM" }],
+      "2026-03-25": [{ id: "mw-cal-25", title: "Thread: What we learned spending $500K on Google Ads", pillar: "Authority", platform: "X/Twitter", status: "Draft", time: "11:00 AM" }],
+      "2026-03-26": [
+        { id: "mw-cal-26", title: "Webinar Promo: Mastering GA4 for Marketers", pillar: "Conversion", platform: "LinkedIn", status: "Draft", time: "9:00 AM" },
+        { id: "mw-cal-27", title: "Webinar Promo: Mastering GA4 for Marketers", pillar: "Conversion", platform: "Instagram", status: "Draft", time: "12:00 PM" },
       ],
-      27: [{ day: 27, title: "Newsletter: End of Q1 Wrap-Up + Resources", pillar: "Education", platform: "Email", status: "Draft", time: "8:00 AM" }],
-      30: [
-        { day: 30, title: "Q1 Results Recap: What Worked Across Channels", pillar: "Authority", platform: "Blog", status: "Draft", time: "10:00 AM" },
-        { day: 30, title: "Book a Q2 Strategy Session - Limited Spots", pillar: "Conversion", platform: "LinkedIn", status: "Draft", time: "9:00 AM" },
+      "2026-03-27": [{ id: "mw-cal-28", title: "Newsletter: End of Q1 Wrap-Up + Resources", pillar: "Education", platform: "Email", status: "Draft", time: "8:00 AM" }],
+      "2026-03-30": [
+        { id: "mw-cal-29", title: "Q1 Results Recap: What Worked Across Channels", pillar: "Authority", platform: "Blog", status: "Draft", time: "10:00 AM" },
+        { id: "mw-cal-30", title: "Book a Q2 Strategy Session - Limited Spots", pillar: "Conversion", platform: "LinkedIn", status: "Draft", time: "9:00 AM" },
       ],
-      31: [{ day: 31, title: "Carousel: Top Performing Content This Quarter", pillar: "Awareness", platform: "Instagram", status: "Draft", time: "12:00 PM" }],
+      "2026-03-31": [{ id: "mw-cal-31", title: "Carousel: Top Performing Content This Quarter", pillar: "Awareness", platform: "Instagram", status: "Draft", time: "12:00 PM" }],
     },
+
+    customPlatforms: ["Blog", "LinkedIn", "Instagram", "X/Twitter", "Email", "TikTok", "Case Study", "White Paper"],
 
     topics: [
       { id: "mw-t-1", title: "Beginner's Guide to GA4 Event Tracking", pillar: "Education", persona: "Marketing Director / Manager", platforms: ["Blog", "LinkedIn"], priority: "Hot", notes: "Step-by-step walkthrough for setting up custom events. Include screenshots and video embed." },
@@ -401,40 +405,42 @@ const defaultClients: FullClient[] = [
     ],
 
     calendarItems: {
-      1: [{ day: 1, title: "Monthly Dental Tip: Flossing Techniques That Actually Work", pillar: "Education", platform: "Blog", status: "Published", time: "9:00 AM" }],
-      3: [{ day: 3, title: "Patient Testimonial: The Johnsons' Family Experience", pillar: "Authority", platform: "Instagram", status: "Published", time: "12:00 PM" }],
-      4: [
-        { day: 4, title: "Did You Know? Sugar-Free Gum Can Help Prevent Cavities", pillar: "Education", platform: "Facebook", status: "Published", time: "10:00 AM" },
-        { day: 4, title: "Google Review Response + New 5-Star Review Share", pillar: "Authority", platform: "Google Business", status: "Published", time: "2:00 PM" },
+      "2026-03-01": [{ id: "pd-cal-1", title: "Monthly Dental Tip: Flossing Techniques That Actually Work", pillar: "Education", platform: "Blog", status: "Published", time: "9:00 AM" }],
+      "2026-03-03": [{ id: "pd-cal-2", title: "Patient Testimonial: The Johnsons' Family Experience", pillar: "Authority", platform: "Instagram", status: "Published", time: "12:00 PM" }],
+      "2026-03-04": [
+        { id: "pd-cal-3", title: "Did You Know? Sugar-Free Gum Can Help Prevent Cavities", pillar: "Education", platform: "Facebook", status: "Published", time: "10:00 AM" },
+        { id: "pd-cal-4", title: "Google Review Response + New 5-Star Review Share", pillar: "Authority", platform: "Google Business", status: "Published", time: "2:00 PM" },
       ],
-      6: [{ day: 6, title: "Friday Fun: Our Team's Favorite Healthy Snacks", pillar: "Awareness", platform: "Instagram", status: "Published", time: "11:00 AM" }],
-      8: [{ day: 8, title: "Blog: What to Expect at Your First Peachtree Dental Visit", pillar: "Education", platform: "Blog", status: "Published", time: "10:00 AM" }],
-      10: [
-        { day: 10, title: "Before & After: Smile Makeover with Veneers", pillar: "Authority", platform: "Instagram", status: "Published", time: "12:00 PM" },
-        { day: 10, title: "Myth-Busting: Does Whitening Damage Your Enamel?", pillar: "Education", platform: "Facebook", status: "Published", time: "3:00 PM" },
+      "2026-03-06": [{ id: "pd-cal-5", title: "Friday Fun: Our Team's Favorite Healthy Snacks", pillar: "Awareness", platform: "Instagram", status: "Published", time: "11:00 AM" }],
+      "2026-03-08": [{ id: "pd-cal-6", title: "Blog: What to Expect at Your First Peachtree Dental Visit", pillar: "Education", platform: "Blog", status: "Published", time: "10:00 AM" }],
+      "2026-03-10": [
+        { id: "pd-cal-7", title: "Before & After: Smile Makeover with Veneers", pillar: "Authority", platform: "Instagram", status: "Published", time: "12:00 PM" },
+        { id: "pd-cal-8", title: "Myth-Busting: Does Whitening Damage Your Enamel?", pillar: "Education", platform: "Facebook", status: "Published", time: "3:00 PM" },
       ],
-      11: [{ day: 11, title: "Spring Break Dental Checklist for Families", pillar: "Education", platform: "Email", status: "Published", time: "8:00 AM" }],
-      13: [{ day: 13, title: "Patient Spotlight: Sarah's Invisalign Journey", pillar: "Authority", platform: "Instagram", status: "Published", time: "12:00 PM" }],
-      14: [{ day: 14, title: "5 Signs Your Child Is Ready for Their First Dental Visit", pillar: "Education", platform: "Blog", status: "Published", time: "10:00 AM" }],
-      16: [
-        { day: 16, title: "National Dentist's Day: Meet Our Team", pillar: "Awareness", platform: "Instagram", status: "Published", time: "10:00 AM" },
-        { day: 16, title: "National Dentist's Day: Meet Our Team", pillar: "Awareness", platform: "Facebook", status: "Published", time: "10:00 AM" },
+      "2026-03-11": [{ id: "pd-cal-9", title: "Spring Break Dental Checklist for Families", pillar: "Education", platform: "Email", status: "Published", time: "8:00 AM" }],
+      "2026-03-13": [{ id: "pd-cal-10", title: "Patient Spotlight: Sarah's Invisalign Journey", pillar: "Authority", platform: "Instagram", status: "Published", time: "12:00 PM" }],
+      "2026-03-14": [{ id: "pd-cal-11", title: "5 Signs Your Child Is Ready for Their First Dental Visit", pillar: "Education", platform: "Blog", status: "Published", time: "10:00 AM" }],
+      "2026-03-16": [
+        { id: "pd-cal-12", title: "National Dentist's Day: Meet Our Team", pillar: "Awareness", platform: "Instagram", status: "Published", time: "10:00 AM" },
+        { id: "pd-cal-13", title: "National Dentist's Day: Meet Our Team", pillar: "Awareness", platform: "Facebook", status: "Published", time: "10:00 AM" },
       ],
-      17: [{ day: 17, title: "March New Patient Special: Free Whitening with Exam", pillar: "Conversion", platform: "Email", status: "Scheduled", time: "8:00 AM" }],
-      19: [{ day: 19, title: "Meet Dr. Patel: Our New Pediatric Specialist", pillar: "Awareness", platform: "Instagram", status: "Draft", time: "12:00 PM" }],
-      20: [{ day: 20, title: "Blog: Why We Invested in Same-Day Crown Technology", pillar: "Authority", platform: "Blog", status: "In Review", time: "10:00 AM" }],
-      22: [{ day: 22, title: "Toothbrush Replacement Reminder Post", pillar: "Education", platform: "Facebook", status: "Scheduled", time: "9:00 AM" }],
-      24: [
-        { day: 24, title: "Invisalign Q&A: Your Top 10 Questions Answered", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
-        { day: 24, title: "Google Business Update: Spring Hours", pillar: "Awareness", platform: "Google Business", status: "Draft", time: "2:00 PM" },
+      "2026-03-17": [{ id: "pd-cal-14", title: "March New Patient Special: Free Whitening with Exam", pillar: "Conversion", platform: "Email", status: "Scheduled", time: "8:00 AM" }],
+      "2026-03-19": [{ id: "pd-cal-15", title: "Meet Dr. Patel: Our New Pediatric Specialist", pillar: "Awareness", platform: "Instagram", status: "Draft", time: "12:00 PM" }],
+      "2026-03-20": [{ id: "pd-cal-16", title: "Blog: Why We Invested in Same-Day Crown Technology", pillar: "Authority", platform: "Blog", status: "In Review", time: "10:00 AM" }],
+      "2026-03-22": [{ id: "pd-cal-17", title: "Toothbrush Replacement Reminder Post", pillar: "Education", platform: "Facebook", status: "Scheduled", time: "9:00 AM" }],
+      "2026-03-24": [
+        { id: "pd-cal-18", title: "Invisalign Q&A: Your Top 10 Questions Answered", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
+        { id: "pd-cal-19", title: "Google Business Update: Spring Hours", pillar: "Awareness", platform: "Google Business", status: "Draft", time: "2:00 PM" },
       ],
-      26: [{ day: 26, title: "Patient Appreciation Week Announcement", pillar: "Conversion", platform: "Instagram", status: "Draft", time: "12:00 PM" }],
-      27: [{ day: 27, title: "Newsletter: April Dental Health Month Preview", pillar: "Education", platform: "Email", status: "Draft", time: "8:00 AM" }],
-      30: [
-        { day: 30, title: "Refer a Friend: Get $50 Off Your Next Visit", pillar: "Conversion", platform: "Facebook", status: "Draft", time: "10:00 AM" },
-        { day: 30, title: "Blog: How Sedation Dentistry Makes Visits Stress-Free", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
+      "2026-03-26": [{ id: "pd-cal-20", title: "Patient Appreciation Week Announcement", pillar: "Conversion", platform: "Instagram", status: "Draft", time: "12:00 PM" }],
+      "2026-03-27": [{ id: "pd-cal-21", title: "Newsletter: April Dental Health Month Preview", pillar: "Education", platform: "Email", status: "Draft", time: "8:00 AM" }],
+      "2026-03-30": [
+        { id: "pd-cal-22", title: "Refer a Friend: Get $50 Off Your Next Visit", pillar: "Conversion", platform: "Facebook", status: "Draft", time: "10:00 AM" },
+        { id: "pd-cal-23", title: "Blog: How Sedation Dentistry Makes Visits Stress-Free", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
       ],
     },
+
+    customPlatforms: ["Blog", "Instagram", "Facebook", "Google Business", "Email", "TikTok"],
 
     topics: [
       { id: "pd-t-1", title: "Complete Guide to Dental Insurance: What's Actually Covered", pillar: "Education", persona: "New Patient (Family Decision-Maker)", platforms: ["Blog", "Facebook"], priority: "Hot", notes: "Break down common insurance plans, co-pays, and what to ask before your visit." },
@@ -577,44 +583,46 @@ const defaultClients: FullClient[] = [
     ],
 
     calendarItems: {
-      1: [{ day: 1, title: "Thread: 5 Kubernetes anti-patterns we see every week", pillar: "Education", platform: "X/Twitter", status: "Published", time: "10:00 AM" }],
-      3: [
-        { day: 3, title: "Blog: Zero-Downtime Deployments with SouthStack", pillar: "Education", platform: "Blog", status: "Published", time: "10:00 AM" },
-        { day: 3, title: "LinkedIn: Announcing our SOC 2 Type II certification", pillar: "Authority", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
+      "2026-03-01": [{ id: "ss-cal-1", title: "Thread: 5 Kubernetes anti-patterns we see every week", pillar: "Education", platform: "X/Twitter", status: "Published", time: "10:00 AM" }],
+      "2026-03-03": [
+        { id: "ss-cal-2", title: "Blog: Zero-Downtime Deployments with SouthStack", pillar: "Education", platform: "Blog", status: "Published", time: "10:00 AM" },
+        { id: "ss-cal-3", title: "LinkedIn: Announcing our SOC 2 Type II certification", pillar: "Authority", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
       ],
-      5: [{ day: 5, title: "Dev.to: Getting Started with SouthStack CLI in 5 Minutes", pillar: "Education", platform: "Dev.to", status: "Published", time: "10:00 AM" }],
-      6: [{ day: 6, title: "Thread: Why we built our own scheduler (and what we learned)", pillar: "Authority", platform: "X/Twitter", status: "Published", time: "11:00 AM" }],
-      8: [{ day: 8, title: "YouTube: SouthStack Platform Demo -- From Git Push to Production", pillar: "Education", platform: "YouTube", status: "Published", time: "2:00 PM" }],
-      10: [
-        { day: 10, title: "Blog: SouthStack vs Heroku vs Render: Honest Comparison", pillar: "Authority", platform: "Blog", status: "Published", time: "10:00 AM" },
-        { day: 10, title: "LinkedIn: How we reduced cloud spend 40% for Series B startups", pillar: "Authority", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
+      "2026-03-05": [{ id: "ss-cal-4", title: "Dev.to: Getting Started with SouthStack CLI in 5 Minutes", pillar: "Education", platform: "Dev.to", status: "Published", time: "10:00 AM" }],
+      "2026-03-06": [{ id: "ss-cal-5", title: "Thread: Why we built our own scheduler (and what we learned)", pillar: "Authority", platform: "X/Twitter", status: "Published", time: "11:00 AM" }],
+      "2026-03-08": [{ id: "ss-cal-6", title: "YouTube: SouthStack Platform Demo -- From Git Push to Production", pillar: "Education", platform: "YouTube", status: "Published", time: "2:00 PM" }],
+      "2026-03-10": [
+        { id: "ss-cal-7", title: "Blog: SouthStack vs Heroku vs Render: Honest Comparison", pillar: "Authority", platform: "Blog", status: "Published", time: "10:00 AM" },
+        { id: "ss-cal-8", title: "LinkedIn: How we reduced cloud spend 40% for Series B startups", pillar: "Authority", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
       ],
-      12: [{ day: 12, title: "Blog: Why We Open-Sourced Our Kubernetes Operator", pillar: "Authority", platform: "Blog", status: "Published", time: "10:00 AM" }],
-      13: [{ day: 13, title: "Thread: v2.4 Release -- Native Terraform Support Is Here", pillar: "Awareness", platform: "X/Twitter", status: "Published", time: "10:00 AM" }],
-      14: [{ day: 14, title: "Newsletter: March Platform Updates + Community Highlights", pillar: "Education", platform: "Email", status: "Published", time: "8:00 AM" }],
-      16: [
-        { day: 16, title: "Blog: How Finch AI Cut Deploy Time from 45 min to 90 Seconds", pillar: "Authority", platform: "Blog", status: "In Review", time: "10:00 AM" },
-        { day: 16, title: "LinkedIn: Hiring -- Senior Platform Engineer (Remote)", pillar: "Awareness", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
+      "2026-03-12": [{ id: "ss-cal-9", title: "Blog: Why We Open-Sourced Our Kubernetes Operator", pillar: "Authority", platform: "Blog", status: "Published", time: "10:00 AM" }],
+      "2026-03-13": [{ id: "ss-cal-10", title: "Thread: v2.4 Release -- Native Terraform Support Is Here", pillar: "Awareness", platform: "X/Twitter", status: "Published", time: "10:00 AM" }],
+      "2026-03-14": [{ id: "ss-cal-11", title: "Newsletter: March Platform Updates + Community Highlights", pillar: "Education", platform: "Email", status: "Published", time: "8:00 AM" }],
+      "2026-03-16": [
+        { id: "ss-cal-12", title: "Blog: How Finch AI Cut Deploy Time from 45 min to 90 Seconds", pillar: "Authority", platform: "Blog", status: "In Review", time: "10:00 AM" },
+        { id: "ss-cal-13", title: "LinkedIn: Hiring -- Senior Platform Engineer (Remote)", pillar: "Awareness", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
       ],
-      18: [{ day: 18, title: "Free Migration Assessment: Is SouthStack Right for Your Stack?", pillar: "Conversion", platform: "Email", status: "Scheduled", time: "8:00 AM" }],
-      19: [{ day: 19, title: "Dev.to: Building Internal Developer Portals with SouthStack", pillar: "Education", platform: "Dev.to", status: "Draft", time: "10:00 AM" }],
-      20: [
-        { day: 20, title: "YouTube: Live Coding -- Deploying a Next.js App on SouthStack", pillar: "Education", platform: "YouTube", status: "Scheduled", time: "3:00 PM" },
-        { day: 20, title: "Thread: The real cost of 'free' PaaS tiers", pillar: "Awareness", platform: "X/Twitter", status: "Scheduled", time: "11:00 AM" },
+      "2026-03-18": [{ id: "ss-cal-14", title: "Free Migration Assessment: Is SouthStack Right for Your Stack?", pillar: "Conversion", platform: "Email", status: "Scheduled", time: "8:00 AM" }],
+      "2026-03-19": [{ id: "ss-cal-15", title: "Dev.to: Building Internal Developer Portals with SouthStack", pillar: "Education", platform: "Dev.to", status: "Draft", time: "10:00 AM" }],
+      "2026-03-20": [
+        { id: "ss-cal-16", title: "YouTube: Live Coding -- Deploying a Next.js App on SouthStack", pillar: "Education", platform: "YouTube", status: "Scheduled", time: "3:00 PM" },
+        { id: "ss-cal-17", title: "Thread: The real cost of 'free' PaaS tiers", pillar: "Awareness", platform: "X/Twitter", status: "Scheduled", time: "11:00 AM" },
       ],
-      23: [
-        { day: 23, title: "Blog: GitOps Best Practices for Growing Engineering Teams", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
-        { day: 23, title: "LinkedIn: Customer story -- How Bloom Health scaled to 10M users", pillar: "Authority", platform: "LinkedIn", status: "Draft", time: "9:00 AM" },
+      "2026-03-23": [
+        { id: "ss-cal-18", title: "Blog: GitOps Best Practices for Growing Engineering Teams", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
+        { id: "ss-cal-19", title: "LinkedIn: Customer story -- How Bloom Health scaled to 10M users", pillar: "Authority", platform: "LinkedIn", status: "Draft", time: "9:00 AM" },
       ],
-      25: [{ day: 25, title: "Thread: 10 CLI tricks every SouthStack user should know", pillar: "Education", platform: "X/Twitter", status: "Draft", time: "10:00 AM" }],
-      26: [{ day: 26, title: "Webinar: From Monolith to Microservices -- A Live Migration", pillar: "Conversion", platform: "LinkedIn", status: "Draft", time: "9:00 AM" }],
-      27: [{ day: 27, title: "Newsletter: Platform Roadmap Q2 Preview", pillar: "Awareness", platform: "Email", status: "Draft", time: "8:00 AM" }],
-      30: [
-        { day: 30, title: "Blog: Observability 101: Metrics, Logs, and Traces Explained", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
-        { day: 30, title: "Start Your Free 14-Day Trial -- No Credit Card Required", pillar: "Conversion", platform: "Email", status: "Draft", time: "8:00 AM" },
+      "2026-03-25": [{ id: "ss-cal-20", title: "Thread: 10 CLI tricks every SouthStack user should know", pillar: "Education", platform: "X/Twitter", status: "Draft", time: "10:00 AM" }],
+      "2026-03-26": [{ id: "ss-cal-21", title: "Webinar: From Monolith to Microservices -- A Live Migration", pillar: "Conversion", platform: "LinkedIn", status: "Draft", time: "9:00 AM" }],
+      "2026-03-27": [{ id: "ss-cal-22", title: "Newsletter: Platform Roadmap Q2 Preview", pillar: "Awareness", platform: "Email", status: "Draft", time: "8:00 AM" }],
+      "2026-03-30": [
+        { id: "ss-cal-23", title: "Blog: Observability 101: Metrics, Logs, and Traces Explained", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
+        { id: "ss-cal-24", title: "Start Your Free 14-Day Trial -- No Credit Card Required", pillar: "Conversion", platform: "Email", status: "Draft", time: "8:00 AM" },
       ],
-      31: [{ day: 31, title: "LinkedIn: Q1 Platform Reliability Report -- 99.99% uptime", pillar: "Authority", platform: "LinkedIn", status: "Draft", time: "9:00 AM" }],
+      "2026-03-31": [{ id: "ss-cal-25", title: "LinkedIn: Q1 Platform Reliability Report -- 99.99% uptime", pillar: "Authority", platform: "LinkedIn", status: "Draft", time: "9:00 AM" }],
     },
+
+    customPlatforms: ["Blog", "LinkedIn", "X/Twitter", "Dev.to", "YouTube", "Email", "TikTok", "White Paper"],
 
     topics: [
       { id: "ss-t-1", title: "The True Cost of DIY Kubernetes: A CFO-Friendly Breakdown", pillar: "Education", persona: "CTO / VP Engineering", platforms: ["Blog", "LinkedIn"], priority: "Hot", notes: "Build an ROI calculator. Compare engineer-hours vs SouthStack pricing." },
@@ -637,6 +645,7 @@ interface ClientContextType {
   setActiveClientId: (id: string) => void;
   addClient: (client: FullClient) => void;
   updateClient: (id: string, partial: Partial<FullClient>) => void;
+  deleteClient: (id: string) => void;
 }
 
 const ClientContext = createContext<ClientContextType>({
@@ -645,6 +654,7 @@ const ClientContext = createContext<ClientContextType>({
   setActiveClientId: () => {},
   addClient: () => {},
   updateClient: () => {},
+  deleteClient: () => {},
 });
 
 /* ───────────────────────────── Provider ───────────────────────────── */
@@ -667,7 +677,8 @@ export function ClientProvider({ children }: { children: ReactNode }) {
           parsed.length > 0 &&
           parsed[0].toneAttributes &&
           parsed[0].calendarItems &&
-          parsed[0].icps
+          parsed[0].icps &&
+          parsed[0].customPlatforms
         ) {
           setClients(parsed);
         } else {
@@ -711,11 +722,23 @@ export function ClientProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const deleteClient = (id: string) => {
+    setClients((prev) => {
+      if (prev.length <= 1) return prev; // Don't delete the last client
+      const updated = prev.filter((c) => c.id !== id);
+      // If we deleted the active client, switch to the first remaining
+      if (id === activeClientId && updated.length > 0) {
+        setActiveClientId(updated[0].id);
+      }
+      return updated;
+    });
+  };
+
   if (!mounted) return null;
 
   return (
     <ClientContext.Provider
-      value={{ clients, activeClient, setActiveClientId, addClient, updateClient }}
+      value={{ clients, activeClient, setActiveClientId, addClient, updateClient, deleteClient }}
     >
       {children}
     </ClientContext.Provider>
