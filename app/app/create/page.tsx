@@ -415,7 +415,14 @@ function BriefGeneratorTab({ dark }: { dark: boolean }) {
   const { activeClient } = useClient();
 
   const [briefType, setBriefType] = useState<"seo" | "video" | "social">("seo");
-  const [savedBriefs, setSavedBriefs] = useState<SavedBrief[]>([]);
+  const [savedBriefs, setSavedBriefs] = useState<SavedBrief[]>(() => {
+    if (typeof window === "undefined") return [];
+    try { const s = localStorage.getItem(`mw-briefs-${activeClient.id}`); return s ? JSON.parse(s) : []; } catch { return []; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(`mw-briefs-${activeClient.id}`, JSON.stringify(savedBriefs));
+  }, [savedBriefs, activeClient.id]);
 
   /* SEO Brief state */
   const [seoKeyword, setSeoKeyword] = useState("");
@@ -1081,7 +1088,14 @@ function ContentCreatorTab({ dark }: { dark: boolean }) {
   const [tone, setTone] = useState("");
   const [body, setBody] = useState("");
   const [showAiPanel, setShowAiPanel] = useState(false);
-  const [savedContent, setSavedContent] = useState<SavedContent[]>([]);
+  const [savedContent, setSavedContent] = useState<SavedContent[]>(() => {
+    if (typeof window === "undefined") return [];
+    try { const s = localStorage.getItem(`mw-drafts-${activeClient.id}`); return s ? JSON.parse(s) : []; } catch { return []; }
+  });
+
+  useEffect(() => {
+    localStorage.setItem(`mw-drafts-${activeClient.id}`, JSON.stringify(savedContent));
+  }, [savedContent, activeClient.id]);
 
   const pillarInfo = selectedPillar ? pillarColors[selectedPillar] : undefined;
 
