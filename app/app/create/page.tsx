@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTheme } from "../theme-context";
+import { useClient } from "../client-context";
 
 const contentTypes = [
   "Blog Post",
@@ -19,17 +20,17 @@ const pillars = [
   { name: "Conversion", color: "bg-emerald-500", ring: "ring-emerald-500", lightBg: "bg-emerald-50", text: "text-emerald-700", darkLightBg: "bg-emerald-500/10", darkText: "text-emerald-400" },
 ];
 
-const personas = [
-  { name: "Business Owner", desc: "CEO/Founder of SMB, $1M-$50M revenue" },
-  { name: "Marketing Director", desc: "VP/Director, mid-market $10M-$500M" },
-  { name: "Ecommerce Brand", desc: "DTC Founder/Growth Lead, $500K-$20M" },
-];
-
 const tones = ["Confident & Direct", "Educational & Helpful", "Bold & Provocative", "Data-Driven & Analytical", "Conversational & Approachable"];
 
 export default function CreateContentPage() {
   const { theme } = useTheme();
   const dark = theme === "dark";
+  const { activeClient } = useClient();
+
+  const personas = activeClient.icps.map((icp) => ({
+    name: icp.name,
+    desc: icp.role,
+  }));
 
   const [contentType, setContentType] = useState("");
   const [selectedPillar, setSelectedPillar] = useState("");
@@ -45,7 +46,7 @@ export default function CreateContentPage() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className={`text-2xl font-bold ${dark ? "text-white" : "text-slate-900"}`}>Create Content</h1>
+        <h1 className={`text-2xl font-bold ${dark ? "text-white" : "text-slate-900"}`}>Create Content for {activeClient.name}</h1>
         <p className={`mt-1 text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>Build strategy-aligned content for any channel</p>
       </div>
 
@@ -187,7 +188,7 @@ export default function CreateContentPage() {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={16}
-              placeholder={"Write your content here, or click 'Generate with AI' to get started...\n\nTips for MarketWake content:\n- Lead with the insight, not an introduction\n- Use specific numbers and results\n- Keep paragraphs to 2-4 sentences\n- Active voice always\n- Include a clear CTA"}
+              placeholder={`Write your content here, or click 'Generate with AI' to get started...\n\nTips for ${activeClient.name} content:\n- Lead with the insight, not an introduction\n- Use specific numbers and results\n- Keep paragraphs to 2-4 sentences\n- Active voice always\n- Include a clear CTA`}
               className={`w-full rounded-lg border px-4 py-3 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none font-mono ${
                 dark ? "bg-[#1a2234] border-[#2d3748] text-white" : "bg-white border-slate-200 text-slate-900"
               }`}
@@ -279,8 +280,10 @@ export default function CreateContentPage() {
               </div>
               <div className="p-6 space-y-3">
                 <div className={`rounded-lg p-3 ${dark ? "bg-blue-500/10" : "bg-blue-50"}`}>
-                  <p className={`text-xs font-semibold ${dark ? "text-blue-400" : "text-blue-700"}`}>MarketWake Voice</p>
-                  <p className={`mt-1 text-[11px] ${dark ? "text-blue-300" : "text-blue-600"}`}>Confident, Direct, Smart, Energetic, Approachable</p>
+                  <p className={`text-xs font-semibold ${dark ? "text-blue-400" : "text-blue-700"}`}>{activeClient.name} Voice</p>
+                  <p className={`mt-1 text-[11px] ${dark ? "text-blue-300" : "text-blue-600"}`}>
+                    {activeClient.toneAttributes.map((a) => a.positive).join(", ")}
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <p className={`text-xs font-medium ${dark ? "text-slate-400" : "text-slate-500"}`}>Writing Rules</p>
@@ -324,7 +327,7 @@ export default function CreateContentPage() {
               </div>
               <div>
                 <h3 className={`text-lg font-bold ${dark ? "text-white" : "text-slate-900"}`}>AI Content Generation</h3>
-                <p className={`text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>Powered by MarketWake Content Strategy AI</p>
+                <p className={`text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>Powered by {activeClient.name} Content Strategy AI</p>
               </div>
             </div>
 
@@ -335,7 +338,7 @@ export default function CreateContentPage() {
               </div>
               <p className={`text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>
                 When connected, this feature will use your selected content type, pillar, persona, and keywords
-                to generate on-brand MarketWake content following our editorial guidelines.
+                to generate on-brand {activeClient.name} content following our editorial guidelines.
               </p>
               <div className="mt-4 space-y-2">
                 <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? "text-slate-500" : "text-slate-500"}`}>What it will do:</p>
@@ -362,7 +365,7 @@ export default function CreateContentPage() {
                     <svg className="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
-                    Follow MarketWake editorial standards
+                    Follow {activeClient.name} editorial standards
                   </li>
                 </ul>
               </div>

@@ -1,18 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "../theme-context";
-
-interface Topic {
-  id: string;
-  title: string;
-  pillar: string;
-  persona: string;
-  platforms: string[];
-  priority: string;
-  notes: string;
-  client: string;
-}
+import { useClient, Topic } from "../client-context";
 
 const pillarColors: Record<string, { bg: string; darkBg: string; text: string; darkText: string; border: string; darkBorder: string; dot: string }> = {
   Education: { bg: "bg-blue-50", darkBg: "bg-blue-500/10", text: "text-blue-700", darkText: "text-blue-400", border: "border-blue-200", darkBorder: "border-blue-500/30", dot: "bg-blue-500" },
@@ -22,22 +12,8 @@ const pillarColors: Record<string, { bg: string; darkBg: string; text: string; d
 };
 
 const pillarNames = ["Education", "Authority", "Awareness", "Conversion"];
-const personaOptions = ["Business Owner", "Marketing Director", "Ecommerce Brand"];
-const platformOptions = ["Blog", "LinkedIn", "Instagram", "X/Twitter", "Email"];
+const platformOptions = ["Blog", "LinkedIn", "Instagram", "X/Twitter", "Email", "Facebook", "Dev.to", "YouTube", "Google Business"];
 const priorityOptions = ["Hot", "Medium", "Backlog"];
-const clientOptions = ["MarketWake", "Peachtree Dental", "SouthStack SaaS"];
-
-const initialTopics: Topic[] = [
-  { id: "1", title: "Beginner's Guide to GA4 Event Tracking", pillar: "Education", persona: "Marketing Director", platforms: ["Blog", "LinkedIn"], priority: "Hot", notes: "Step-by-step walkthrough for setting up custom events. Include screenshots and video embed.", client: "MarketWake" },
-  { id: "2", title: "SEO vs PPC: Where to Invest First", pillar: "Education", persona: "Business Owner", platforms: ["Blog", "Email"], priority: "Medium", notes: "Compare ROI timelines and budget considerations for SMBs.", client: "MarketWake" },
-  { id: "3", title: "Email Automation Playbook for SMBs", pillar: "Education", persona: "Business Owner", platforms: ["Blog", "Email", "LinkedIn"], priority: "Backlog", notes: "Cover welcome sequences, abandoned cart, and re-engagement flows.", client: "MarketWake" },
-  { id: "4", title: "Case Study: 340% Organic Growth in 6 Months", pillar: "Authority", persona: "Business Owner", platforms: ["Blog", "LinkedIn", "Instagram"], priority: "Hot", notes: "Feature the B2B SaaS client. Include before/after data and strategy breakdown.", client: "MarketWake" },
-  { id: "5", title: "Q1 2026 Digital Marketing Benchmark Report", pillar: "Authority", persona: "Marketing Director", platforms: ["Blog", "LinkedIn", "Email"], priority: "Medium", notes: "Aggregate industry data with MarketWake commentary and recommendations.", client: "MarketWake" },
-  { id: "6", title: "Hot Take: Why Most Marketing Agencies Are Lying to You", pillar: "Awareness", persona: "Business Owner", platforms: ["LinkedIn", "X/Twitter", "Instagram"], priority: "Hot", notes: "Provocative angle on vanity metrics and fake reporting. Bold but backed by data.", client: "MarketWake" },
-  { id: "7", title: "Atlanta Tech Week Recap & Insights", pillar: "Awareness", persona: "Marketing Director", platforms: ["Blog", "LinkedIn", "Instagram"], priority: "Medium", notes: "Cover key takeaways, networking highlights, and MarketWake presence.", client: "MarketWake" },
-  { id: "8", title: "Free SEO Audit Landing Page Copy", pillar: "Conversion", persona: "Business Owner", platforms: ["Blog", "Email"], priority: "Hot", notes: "High-converting landing page with clear CTA. A/B test headline options.", client: "MarketWake" },
-  { id: "9", title: "Q2 Strategy Session Promotion", pillar: "Conversion", persona: "Business Owner", platforms: ["Email", "LinkedIn", "Instagram"], priority: "Medium", notes: "Promote free 30-min strategy sessions. Urgency-driven copy with limited spots.", client: "MarketWake" },
-];
 
 const trendingTopics = [
   "AI-Powered SEO: What's Actually Working in 2026",
@@ -50,17 +26,25 @@ const trendingTopics = [
 export default function IdeationPage() {
   const { theme } = useTheme();
   const dark = theme === "dark";
+  const { activeClient } = useClient();
 
-  const [topics, setTopics] = useState<Topic[]>(initialTopics);
+  const [topics, setTopics] = useState<Topic[]>(activeClient.topics);
   const [formTitle, setFormTitle] = useState("");
   const [formPillar, setFormPillar] = useState("Education");
-  const [formPersona, setFormPersona] = useState("Business Owner");
+  const [formPersona, setFormPersona] = useState(activeClient.icps[0]?.name || "");
   const [formPlatforms, setFormPlatforms] = useState<string[]>([]);
   const [formPriority, setFormPriority] = useState("Medium");
   const [formNotes, setFormNotes] = useState("");
-  const [formClient, setFormClient] = useState("MarketWake");
   const [sparkInput, setSparkInput] = useState("");
   const [showAiMessage, setShowAiMessage] = useState(false);
+
+  /* Reset topics when active client changes */
+  useEffect(() => {
+    setTopics(activeClient.topics);
+    setFormPersona(activeClient.icps[0]?.name || "");
+  }, [activeClient.id, activeClient.topics, activeClient.icps]);
+
+  const personaOptions = activeClient.icps.map((icp) => icp.name);
 
   const togglePlatform = (p: string) => {
     setFormPlatforms((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
@@ -76,7 +60,6 @@ export default function IdeationPage() {
       platforms: formPlatforms.length > 0 ? formPlatforms : ["Blog"],
       priority: formPriority,
       notes: formNotes.trim(),
-      client: formClient,
     };
     setTopics((prev) => [...prev, newTopic]);
     setFormTitle("");
@@ -90,11 +73,10 @@ export default function IdeationPage() {
       id: Date.now().toString(),
       title,
       pillar: "Awareness",
-      persona: "Marketing Director",
+      persona: activeClient.icps[0]?.name || "",
       platforms: ["Blog", "LinkedIn"],
       priority: "Medium",
       notes: "Added from trending topics.",
-      client: "MarketWake",
     };
     setTopics((prev) => [...prev, newTopic]);
   };
@@ -119,7 +101,7 @@ export default function IdeationPage() {
     <div className="p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className={`text-2xl font-bold ${dark ? "text-white" : "text-slate-900"}`}>Ideation & Brainstorm</h1>
+        <h1 className={`text-2xl font-bold ${dark ? "text-white" : "text-slate-900"}`}>{activeClient.name} — Content Ideation</h1>
         <p className={`mt-1 text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>Brainstorm content topics, organize by pillar, and spark new ideas</p>
       </div>
 
@@ -141,11 +123,11 @@ export default function IdeationPage() {
             />
           </div>
 
-          {/* Client */}
+          {/* Persona */}
           <div>
-            <label className={`mb-1 block text-xs font-medium ${dark ? "text-slate-400" : "text-slate-600"}`}>Client</label>
-            <select value={formClient} onChange={(e) => setFormClient(e.target.value)} className={inputClass}>
-              {clientOptions.map((c) => <option key={c} value={c}>{c}</option>)}
+            <label className={`mb-1 block text-xs font-medium ${dark ? "text-slate-400" : "text-slate-600"}`}>Target Persona</label>
+            <select value={formPersona} onChange={(e) => setFormPersona(e.target.value)} className={inputClass}>
+              {personaOptions.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
           </div>
 
@@ -171,14 +153,6 @@ export default function IdeationPage() {
                 );
               })}
             </div>
-          </div>
-
-          {/* Persona */}
-          <div>
-            <label className={`mb-1 block text-xs font-medium ${dark ? "text-slate-400" : "text-slate-600"}`}>Target Persona</label>
-            <select value={formPersona} onChange={(e) => setFormPersona(e.target.value)} className={inputClass}>
-              {personaOptions.map((p) => <option key={p} value={p}>{p}</option>)}
-            </select>
           </div>
 
           {/* Priority */}

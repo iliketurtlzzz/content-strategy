@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTheme } from "../theme-context";
+import { useClient, CalendarItem } from "../client-context";
 
 const pillarColorsLight: Record<string, { bg: string; text: string; dot: string; border: string }> = {
   Education: { bg: "bg-blue-50", text: "text-blue-700", dot: "bg-blue-500", border: "border-blue-200" },
@@ -15,96 +16,6 @@ const pillarColorsDark: Record<string, { bg: string; text: string; dot: string; 
   Authority: { bg: "bg-purple-500/10", text: "text-purple-400", dot: "bg-purple-500", border: "border-purple-500/20" },
   Awareness: { bg: "bg-amber-500/10", text: "text-amber-400", dot: "bg-amber-500", border: "border-amber-500/20" },
   Conversion: { bg: "bg-emerald-500/10", text: "text-emerald-400", dot: "bg-emerald-500", border: "border-emerald-500/20" },
-};
-
-const platforms = ["All", "Blog", "LinkedIn", "Instagram", "X/Twitter", "Email"];
-
-interface ContentItem {
-  title: string;
-  pillar: string;
-  platform: string;
-  status: string;
-  time?: string;
-}
-
-const calendarData: Record<number, ContentItem[]> = {
-  2: [
-    { title: "Weekly SEO Tip: Internal Linking Strategy", pillar: "Education", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
-  ],
-  3: [
-    { title: "Carousel: 5 Signs Your Website Needs a Refresh", pillar: "Awareness", platform: "Instagram", status: "Published", time: "12:00 PM" },
-  ],
-  4: [
-    { title: "How We Increased Ecommerce Revenue 280% with Email", pillar: "Authority", platform: "Blog", status: "Published", time: "10:00 AM" },
-    { title: "Thread: Email marketing myths debunked", pillar: "Education", platform: "X/Twitter", status: "Published", time: "2:00 PM" },
-  ],
-  5: [
-    { title: "GA4 Transition: What Changed and Why It Matters", pillar: "Education", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
-  ],
-  6: [
-    { title: "Client Spotlight: B2B SaaS Lead Gen Results", pillar: "Authority", platform: "Instagram", status: "Published", time: "11:00 AM" },
-  ],
-  9: [
-    { title: "Blog: Why Your SEO Agency Might Be Wasting Your Budget", pillar: "Education", platform: "Blog", status: "Published", time: "10:00 AM" },
-    { title: "LinkedIn Poll: Biggest marketing challenge in 2026?", pillar: "Awareness", platform: "LinkedIn", status: "Published", time: "1:00 PM" },
-  ],
-  10: [
-    { title: "Reel: 60-Second Paid Media Tip", pillar: "Education", platform: "Instagram", status: "Published", time: "12:00 PM" },
-  ],
-  11: [
-    { title: "Q1 Paid Media Benchmarks for B2B SaaS", pillar: "Authority", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
-  ],
-  12: [
-    { title: "5 GA4 Reports Every Marketer Needs", pillar: "Education", platform: "Blog", status: "In Review", time: "10:00 AM" },
-  ],
-  13: [
-    { title: "Carousel: MarketWake Team at Atlanta Tech Week", pillar: "Awareness", platform: "Instagram", status: "Published", time: "3:00 PM" },
-  ],
-  14: [
-    { title: "Newsletter: March Digital Marketing Roundup", pillar: "Education", platform: "Email", status: "Published", time: "8:00 AM" },
-  ],
-  16: [
-    { title: "How to Build a Content Calendar That Actually Works", pillar: "Education", platform: "LinkedIn", status: "Published", time: "9:00 AM" },
-    { title: "Thread: Unpopular SEO opinions for 2026", pillar: "Awareness", platform: "X/Twitter", status: "Published", time: "11:00 AM" },
-  ],
-  17: [
-    { title: "Behind the Scenes: How We Drove 340% Organic Growth", pillar: "Authority", platform: "Instagram", status: "Scheduled", time: "12:00 PM" },
-  ],
-  18: [
-    { title: "Atlanta Tech Scene: Digital Marketing Trends", pillar: "Awareness", platform: "LinkedIn", status: "Draft", time: "9:00 AM" },
-    { title: "Blog: The Real Cost of Bad Website Performance", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
-  ],
-  19: [
-    { title: "Carousel: SEO Checklist for New Websites", pillar: "Education", platform: "Instagram", status: "Scheduled", time: "12:00 PM" },
-  ],
-  20: [
-    { title: "Free SEO Audit: Is Your Site Leaving Money on the Table?", pillar: "Conversion", platform: "Email", status: "Scheduled", time: "8:00 AM" },
-    { title: "Case Study: Healthcare Client PPC Results", pillar: "Authority", platform: "LinkedIn", status: "Scheduled", time: "10:00 AM" },
-  ],
-  23: [
-    { title: "Blog: Shopify vs WooCommerce in 2026", pillar: "Education", platform: "Blog", status: "Draft", time: "10:00 AM" },
-    { title: "Quick Tip: Meta Ads Creative Testing Framework", pillar: "Education", platform: "LinkedIn", status: "Scheduled", time: "9:00 AM" },
-  ],
-  24: [
-    { title: "Reel: Before/After Website Redesign", pillar: "Authority", platform: "Instagram", status: "Draft", time: "1:00 PM" },
-  ],
-  25: [
-    { title: "Thread: What we learned spending $500K on Google Ads", pillar: "Authority", platform: "X/Twitter", status: "Draft", time: "11:00 AM" },
-  ],
-  26: [
-    { title: "Webinar Promo: Mastering GA4 for Marketers", pillar: "Conversion", platform: "LinkedIn", status: "Draft", time: "9:00 AM" },
-    { title: "Webinar Promo: Mastering GA4 for Marketers", pillar: "Conversion", platform: "Instagram", status: "Draft", time: "12:00 PM" },
-  ],
-  27: [
-    { title: "Newsletter: End of Q1 Wrap-Up + Resources", pillar: "Education", platform: "Email", status: "Draft", time: "8:00 AM" },
-  ],
-  30: [
-    { title: "Q1 Results Recap: What Worked Across Channels", pillar: "Authority", platform: "Blog", status: "Draft", time: "10:00 AM" },
-    { title: "Book a Q2 Strategy Session - Limited Spots", pillar: "Conversion", platform: "LinkedIn", status: "Draft", time: "9:00 AM" },
-  ],
-  31: [
-    { title: "Carousel: Top Performing Content This Quarter", pillar: "Awareness", platform: "Instagram", status: "Draft", time: "12:00 PM" },
-  ],
 };
 
 const statusColorsDark: Record<string, string> = {
@@ -134,6 +45,14 @@ export default function CalendarPage() {
   const dark = theme === "dark";
   const pillarColors = dark ? pillarColorsDark : pillarColorsLight;
   const statusColors = dark ? statusColorsDark : statusColorsLight;
+  const { activeClient } = useClient();
+
+  const calendarData = activeClient.calendarItems;
+
+  /* Derive unique platform list from active client's calendar */
+  const platformSet = new Set<string>();
+  Object.values(calendarData).forEach((items) => items.forEach((item) => platformSet.add(item.platform)));
+  const platforms = ["All", ...Array.from(platformSet).sort()];
 
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [platformFilter, setPlatformFilter] = useState("All");
@@ -146,7 +65,7 @@ export default function CalendarPage() {
 
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  const filteredData: Record<number, ContentItem[]> = {};
+  const filteredData: Record<number, CalendarItem[]> = {};
   Object.entries(calendarData).forEach(([day, items]) => {
     const filtered = platformFilter === "All" ? items : items.filter((item) => item.platform === platformFilter);
     if (filtered.length > 0) {
@@ -161,7 +80,7 @@ export default function CalendarPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className={`text-2xl font-bold ${dark ? "text-white" : "text-slate-900"}`}>Content Calendar</h1>
+          <h1 className={`text-2xl font-bold ${dark ? "text-white" : "text-slate-900"}`}>{activeClient.name} — Content Calendar</h1>
           <p className={`mt-1 text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>March 2026 -- Plan and track content across all channels</p>
         </div>
         <div className="flex items-center gap-4">
@@ -253,7 +172,7 @@ export default function CalendarPage() {
                   </div>
                   <div className="mt-1 space-y-1">
                     {items.slice(0, 2).map((item, idx) => {
-                      const colors = pillarColors[item.pillar];
+                      const colors = pillarColors[item.pillar] || pillarColors.Education;
                       return (
                         <div
                           key={idx}
@@ -306,7 +225,7 @@ export default function CalendarPage() {
           ) : (
             <div className={`divide-y ${dark ? "divide-[#1e293b]" : "divide-slate-50"}`}>
               {selectedItems.map((item, idx) => {
-                const colors = pillarColors[item.pillar];
+                const colors = pillarColors[item.pillar] || pillarColors.Education;
                 return (
                   <div key={idx} className="px-6 py-4">
                     <div className="flex items-start gap-3">
@@ -322,7 +241,7 @@ export default function CalendarPage() {
                           }`}>
                             {item.platform}
                           </span>
-                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${statusColors[item.status]}`}>
+                          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${statusColors[item.status] || ""}`}>
                             {item.status}
                           </span>
                         </div>

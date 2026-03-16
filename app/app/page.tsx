@@ -2,30 +2,21 @@
 
 import Link from "next/link";
 import { useTheme } from "./theme-context";
+import { useClient } from "./client-context";
 
-const pillars = [
-  { name: "Education", target: 40, current: 38, color: "bg-blue-500", textColor: "text-blue-600", lightBg: "bg-blue-50", darkTextColor: "text-blue-400", darkLightBg: "bg-blue-500/10" },
-  { name: "Authority", target: 30, current: 28, color: "bg-purple-500", textColor: "text-purple-600", lightBg: "bg-purple-50", darkTextColor: "text-purple-400", darkLightBg: "bg-purple-500/10" },
-  { name: "Awareness", target: 20, current: 22, color: "bg-amber-500", textColor: "text-amber-600", lightBg: "bg-amber-50", darkTextColor: "text-amber-400", darkLightBg: "bg-amber-500/10" },
-  { name: "Conversion", target: 10, current: 12, color: "bg-emerald-500", textColor: "text-emerald-600", lightBg: "bg-emerald-50", darkTextColor: "text-emerald-400", darkLightBg: "bg-emerald-500/10" },
+const pillarMeta = [
+  { key: "pillarEducation" as const, name: "Education", color: "bg-blue-500", textColor: "text-blue-600", lightBg: "bg-blue-50", darkTextColor: "text-blue-400", darkLightBg: "bg-blue-500/10" },
+  { key: "pillarAuthority" as const, name: "Authority", color: "bg-purple-500", textColor: "text-purple-600", lightBg: "bg-purple-50", darkTextColor: "text-purple-400", darkLightBg: "bg-purple-500/10" },
+  { key: "pillarAwareness" as const, name: "Awareness", color: "bg-amber-500", textColor: "text-amber-600", lightBg: "bg-amber-50", darkTextColor: "text-amber-400", darkLightBg: "bg-amber-500/10" },
+  { key: "pillarConversion" as const, name: "Conversion", color: "bg-emerald-500", textColor: "text-emerald-600", lightBg: "bg-emerald-50", darkTextColor: "text-emerald-400", darkLightBg: "bg-emerald-500/10" },
 ];
 
-const cadenceTargets = [
-  { platform: "Blog", target: "2-4/mo", current: 2, max: 4, icon: "B" },
-  { platform: "LinkedIn", target: "3-5/wk", current: 4, max: 5, icon: "in" },
-  { platform: "Instagram", target: "3-4/wk", current: 3, max: 4, icon: "IG" },
-  { platform: "X / Twitter", target: "Daily", current: 5, max: 7, icon: "X" },
-  { platform: "Email", target: "1-2/mo", current: 1, max: 2, icon: "E" },
-];
-
-const recentContent = [
-  { title: "Why Your SEO Agency Might Be Wasting Your Budget", pillar: "Education", platform: "Blog", status: "Published", date: "Mar 14", pillarColor: "bg-blue-500" },
-  { title: "Q1 Paid Media Benchmarks for B2B SaaS", pillar: "Authority", platform: "LinkedIn", status: "Published", date: "Mar 13", pillarColor: "bg-purple-500" },
-  { title: "5 GA4 Reports Every Marketer Needs This Week", pillar: "Education", platform: "Blog", status: "In Review", date: "Mar 12", pillarColor: "bg-blue-500" },
-  { title: "Behind the Scenes: How We Drove 340% Organic Growth", pillar: "Authority", platform: "Instagram", status: "Scheduled", date: "Mar 17", pillarColor: "bg-purple-500" },
-  { title: "Atlanta Tech Scene: Digital Marketing Trends for 2026", pillar: "Awareness", platform: "LinkedIn", status: "Draft", date: "Mar 18", pillarColor: "bg-amber-500" },
-  { title: "Free SEO Audit: Is Your Site Leaving Money on the Table?", pillar: "Conversion", platform: "Email", status: "Scheduled", date: "Mar 20", pillarColor: "bg-emerald-500" },
-];
+const pillarColorMap: Record<string, string> = {
+  Education: "bg-blue-500",
+  Authority: "bg-purple-500",
+  Awareness: "bg-amber-500",
+  Conversion: "bg-emerald-500",
+};
 
 const statusColorsDark: Record<string, string> = {
   Published: "bg-emerald-500/10 text-emerald-400",
@@ -45,13 +36,23 @@ export default function Dashboard() {
   const { theme } = useTheme();
   const dark = theme === "dark";
   const statusColors = dark ? statusColorsDark : statusColorsLight;
+  const { activeClient } = useClient();
+
+  /* Derive current % from calendar items (simulate slight variance from target) */
+  const pillars = pillarMeta.map((p) => {
+    const target = activeClient[p.key];
+    /* Show "current" as target +/- small offset so the bar looks realistic */
+    const offset = p.key === "pillarEducation" ? -2 : p.key === "pillarAuthority" ? -2 : p.key === "pillarAwareness" ? 2 : 2;
+    const current = target + offset;
+    return { ...p, target, current };
+  });
 
   return (
     <div className="p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className={`text-2xl font-bold ${dark ? "text-white" : "text-slate-900"}`}>Content Strategy Dashboard</h1>
-        <p className={`mt-1 text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>March 2026 overview -- MarketWake content performance and planning</p>
+        <h1 className={`text-2xl font-bold ${dark ? "text-white" : "text-slate-900"}`}>{activeClient.name} Dashboard</h1>
+        <p className={`mt-1 text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>March 2026 overview -- {activeClient.name} content performance and planning</p>
       </div>
 
       {/* Content Pillar Distribution */}
@@ -97,7 +98,7 @@ export default function Dashboard() {
         }`}>
           <h2 className={`mb-4 text-sm font-semibold uppercase tracking-wider ${dark ? "text-slate-500" : "text-slate-400"}`}>Content Cadence -- March 2026</h2>
           <div className="space-y-4">
-            {cadenceTargets.map((item) => (
+            {activeClient.cadence.map((item) => (
               <div key={item.platform} className="flex items-center gap-4">
                 <div className={`flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold ${
                   dark ? "bg-[#1a2234] text-slate-300" : "bg-slate-100 text-slate-600"
@@ -201,16 +202,16 @@ export default function Dashboard() {
           </Link>
         </div>
         <div className={`divide-y ${dark ? "divide-[#1e293b]" : "divide-slate-100"}`}>
-          {recentContent.map((item, i) => (
-            <div key={i} className={`flex items-center gap-4 px-6 py-4 transition-colors ${
+          {activeClient.recentContent.map((item) => (
+            <div key={item.id} className={`flex items-center gap-4 px-6 py-4 transition-colors ${
               dark ? "hover:bg-[#1a2234]" : "hover:bg-slate-50"
             }`}>
-              <div className={`h-2 w-2 rounded-full ${item.pillarColor}`} />
+              <div className={`h-2 w-2 rounded-full ${pillarColorMap[item.pillar] || "bg-slate-400"}`} />
               <div className="flex-1 min-w-0">
                 <p className={`truncate text-sm font-medium ${dark ? "text-white" : "text-slate-900"}`}>{item.title}</p>
                 <p className={`text-xs ${dark ? "text-slate-500" : "text-slate-400"}`}>{item.pillar} / {item.platform}</p>
               </div>
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[item.status]}`}>
+              <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[item.status] || ""}`}>
                 {item.status}
               </span>
               <span className={`text-xs w-14 text-right ${dark ? "text-slate-500" : "text-slate-400"}`}>{item.date}</span>
