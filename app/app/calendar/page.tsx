@@ -81,6 +81,14 @@ export default function CalendarPage() {
   const [movingItemId, setMovingItemId] = useState<string | null>(null);
   const [moveDate, setMoveDate] = useState("");
 
+  // Edit item state
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editPillar, setEditPillar] = useState("Education");
+  const [editPlatform, setEditPlatform] = useState("");
+  const [editStatus, setEditStatus] = useState("Draft");
+  const [editTime, setEditTime] = useState("");
+
   // Manage filters modal
   const [showManageFilters, setShowManageFilters] = useState(false);
   const [newPlatformName, setNewPlatformName] = useState("");
@@ -214,6 +222,44 @@ export default function CalendarPage() {
     updateClient(activeClient.id, { calendarItems: newCalendarItems });
     setMovingItemId(null);
     setMoveDate("");
+  };
+
+  // Start editing an item
+  const startEditing = (item: CalendarItem) => {
+    setEditingItemId(item.id);
+    setEditTitle(item.title);
+    setEditPillar(item.pillar);
+    setEditPlatform(item.platform);
+    setEditStatus(item.status);
+    setEditTime(item.time || "");
+    setMovingItemId(null);
+    setShowAddForm(false);
+  };
+
+  // Save edited item
+  const handleSaveEdit = () => {
+    if (!selectedDateKey || !editingItemId || !editTitle.trim()) return;
+    const existing = calendarData[selectedDateKey] || [];
+    const updated = existing.map((item) =>
+      item.id === editingItemId
+        ? {
+            ...item,
+            title: editTitle.trim(),
+            pillar: editPillar,
+            platform: editPlatform,
+            status: editStatus,
+            time: editTime.trim() || undefined,
+          }
+        : item
+    );
+    updateClient(activeClient.id, {
+      calendarItems: { ...calendarData, [selectedDateKey]: updated },
+    });
+    setEditingItemId(null);
+  };
+
+  const cancelEditing = () => {
+    setEditingItemId(null);
   };
 
   // Manage filters
@@ -450,12 +496,26 @@ export default function CalendarPage() {
                             <div className="flex items-start justify-between gap-2">
                               <p className={`text-sm font-medium ${dark ? "text-white" : "text-slate-900"}`}>{item.title}</p>
                               <div className="flex items-center gap-1 shrink-0">
+                                {/* Edit button */}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    startEditing(item);
+                                  }}
+                                  title="Edit"
+                                  className={`rounded p-1 transition-colors ${dark ? "text-slate-500 hover:text-amber-400 hover:bg-amber-500/10" : "text-slate-400 hover:text-amber-600 hover:bg-amber-50"}`}
+                                >
+                                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                                  </svg>
+                                </button>
                                 {/* Move button */}
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setMovingItemId(movingItemId === item.id ? null : item.id);
                                     setMoveDate("");
+                                    setEditingItemId(null);
                                   }}
                                   title="Move to another date"
                                   className={`rounded p-1 transition-colors ${dark ? "text-slate-500 hover:text-blue-400 hover:bg-blue-500/10" : "text-slate-400 hover:text-blue-600 hover:bg-blue-50"}`}
@@ -494,6 +554,67 @@ export default function CalendarPage() {
                             </div>
                             {item.time && (
                               <p className={`mt-1.5 text-xs ${dark ? "text-slate-500" : "text-slate-400"}`}>{item.time}</p>
+                            )}
+
+                            {/* Inline edit form */}
+                            {editingItemId === item.id && (
+                              <div className={`mt-3 rounded-lg border p-3 space-y-2 ${dark ? "border-[#2d3748] bg-[#0d1117]" : "border-slate-200 bg-slate-50"}`} onClick={(e) => e.stopPropagation()}>
+                                <p className={`text-xs font-semibold ${dark ? "text-amber-400" : "text-amber-600"}`}>Edit Item</p>
+                                <input
+                                  type="text"
+                                  value={editTitle}
+                                  onChange={(e) => setEditTitle(e.target.value)}
+                                  placeholder="Title"
+                                  className={inputClass}
+                                />
+                                <div className="flex gap-1.5">
+                                  {PILLAR_OPTIONS.map((p) => (
+                                    <button
+                                      key={p}
+                                      onClick={() => setEditPillar(p)}
+                                      className={`flex-1 rounded px-1.5 py-1 text-[10px] font-medium transition-colors ${
+                                        editPillar === p
+                                          ? `${pillarColors[p].bg} ${pillarColors[p].text} border ${pillarColors[p].border}`
+                                          : dark ? "bg-[#1a2234] text-slate-500 border border-[#2d3748]" : "bg-white text-slate-400 border border-slate-200"
+                                      }`}
+                                    >
+                                      {p}
+                                    </button>
+                                  ))}
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <select value={editPlatform} onChange={(e) => setEditPlatform(e.target.value)} className={inputClass}>
+                                    {activeClient.customPlatforms.map((p) => (<option key={p} value={p}>{p}</option>))}
+                                  </select>
+                                  <select value={editStatus} onChange={(e) => setEditStatus(e.target.value)} className={inputClass}>
+                                    {STATUS_OPTIONS.map((s) => (<option key={s} value={s}>{s}</option>))}
+                                  </select>
+                                </div>
+                                <input
+                                  type="text"
+                                  value={editTime}
+                                  onChange={(e) => setEditTime(e.target.value)}
+                                  placeholder="Time (e.g. 9:00 AM)"
+                                  className={inputClass}
+                                />
+                                <div className="flex gap-2 pt-1">
+                                  <button
+                                    onClick={handleSaveEdit}
+                                    disabled={!editTitle.trim()}
+                                    className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={cancelEditing}
+                                    className={`flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                                      dark ? "border-[#2d3748] text-slate-300 hover:bg-[#1a2234]" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                                    }`}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
                             )}
 
                             {/* Move date picker */}
