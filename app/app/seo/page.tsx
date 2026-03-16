@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useTheme } from "../theme-context";
+import { analyzeContent } from "../lib/analyzer";
+import { parseText, parseHTML } from "../lib/parsers";
 
 const intentOptions = ["Informational", "Commercial", "Transactional", "Navigational"];
 const personaOptions = ["Business Owner", "Marketing Director", "Ecommerce Brand"];
@@ -1021,21 +1023,22 @@ function StopSlopTab({ dark }: { dark: boolean }) {
   const handleFileUpload = async (file: File) => {
     setLoading(true);
     setError('');
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const res = await fetch('/api/analyze-document', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Analysis failed'); return; }
-
-      setCurrentResult(data.result);
-      setCurrentFileName(data.fileName);
-      setCurrentDocText(data.documentText || '');
-      saveToHistory(data.result, data.fileName, 'document', data.documentText || '');
+      const text = await file.text();
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+      const parsed = (ext === 'html' || ext === 'htm') ? parseHTML(text) : parseText(text, file.name);
+      if (!parsed.text || parsed.text.trim().length === 0) {
+        setError('Could not extract text from the file');
+        return;
+      }
+      const result = analyzeContent(parsed);
+      setCurrentResult(result);
+      setCurrentFileName(file.name);
+      setCurrentDocText(parsed.text);
+      saveToHistory(result, file.name, 'document', parsed.text);
       setView('results');
     } catch {
-      setError('Failed to analyze. Please try again.');
+      setError('Failed to analyze the file.');
     } finally {
       setLoading(false);
     }
@@ -1045,19 +1048,24 @@ function StopSlopTab({ dark }: { dark: boolean }) {
     if (!url.trim()) return;
     setLoading(true);
     setError('');
-
     try {
-      const res = await fetch('/api/analyze-url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url.trim() }) });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || 'Analysis failed'); return; }
-
-      setCurrentResult(data.result);
-      setCurrentFileName(data.url || url);
-      setCurrentDocText(data.documentText || '');
-      saveToHistory(data.result, data.url || url, 'url', data.documentText || '', data.url);
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url.trim())}`;
+      const res = await fetch(proxyUrl);
+      if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
+      const html = await res.text();
+      const parsed = parseHTML(html);
+      if (!parsed.text || parsed.text.trim().length === 0) {
+        setError('Could not extract text from the URL');
+        return;
+      }
+      const result = analyzeContent(parsed);
+      setCurrentResult(result);
+      setCurrentFileName(url.trim());
+      setCurrentDocText(parsed.text);
+      saveToHistory(result, url.trim(), 'url', parsed.text, url.trim());
       setView('results');
     } catch {
-      setError('Failed to analyze. Please try again.');
+      setError('Could not fetch that URL. Try uploading the page content as an HTML file instead.');
     } finally {
       setLoading(false);
     }
