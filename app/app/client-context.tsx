@@ -659,9 +659,23 @@ export function ClientProvider({ children }: { children: ReactNode }) {
     const storedClients = localStorage.getItem("mw-clients");
     if (storedClients) {
       try {
-        setClients(JSON.parse(storedClients));
+        const parsed = JSON.parse(storedClients);
+        // Validate that the stored data has the new FullClient shape
+        // If the first client is missing key fields, the data is stale — reset
+        if (
+          Array.isArray(parsed) &&
+          parsed.length > 0 &&
+          parsed[0].toneAttributes &&
+          parsed[0].calendarItems &&
+          parsed[0].icps
+        ) {
+          setClients(parsed);
+        } else {
+          // Stale data from old format — clear and use defaults
+          localStorage.removeItem("mw-clients");
+        }
       } catch {
-        /* ignore bad JSON */
+        localStorage.removeItem("mw-clients");
       }
     }
     const storedActive = localStorage.getItem("mw-active-client");
