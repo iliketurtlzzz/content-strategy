@@ -5,10 +5,6 @@ import { useTheme } from "../theme-context";
 import { analyzeContent } from "../lib/analyzer";
 import { parseText, parseHTML } from "../lib/parsers";
 
-const intentOptions = ["Informational", "Commercial", "Transactional", "Navigational"];
-const personaOptions = ["Business Owner", "Marketing Director", "Ecommerce Brand"];
-const formatOptions = ["Blog Post", "Landing Page", "Pillar Page", "How-To Guide", "Listicle", "Case Study"];
-
 const auditChecklist = [
   // Traditional SEO (indices 0-2)
   { category: "Technical SEO", items: [
@@ -1237,12 +1233,6 @@ export default function SEOToolsPage() {
   const { theme } = useTheme();
   const dark = theme === "dark";
 
-  const [keyword, setKeyword] = useState("");
-  const [intent, setIntent] = useState("");
-  const [persona, setPersona] = useState("");
-  const [format, setFormat] = useState("");
-  const [briefGenerated, setBriefGenerated] = useState(false);
-
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
   const toggleCheck = (item: string) => {
@@ -1258,19 +1248,18 @@ export default function SEOToolsPage() {
   const aeoChecked = aeoCategories.reduce((sum, cat) => sum + cat.items.filter((item) => checkedItems[item]).length, 0);
   const aeoTotal = aeoCategories.reduce((sum, cat) => sum + cat.items.length, 0);
 
-  const [activeTab, setActiveTab] = useState<"brief" | "audit" | "reference" | "grader">("brief");
+  const [activeTab, setActiveTab] = useState<"audit" | "reference" | "grader">("audit");
 
   return (
     <div className="p-8">
       <div className="mb-8">
         <h1 className={`text-2xl font-bold ${dark ? "text-white" : "text-slate-900"}`}>SEO / AEO Tools</h1>
-        <p className={`mt-1 text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>Generate SEO briefs, run audits, grade content for LLM citation readiness (AEO), and reference on-page best practices</p>
+        <p className={`mt-1 text-sm ${dark ? "text-slate-400" : "text-slate-500"}`}>Run audits, grade content for LLM citation readiness (AEO), and reference on-page best practices</p>
       </div>
 
       {/* Tabs */}
       <div className={`mb-6 flex gap-1 rounded-lg p-1 w-fit ${dark ? "bg-[#1a2234]" : "bg-slate-100"}`}>
         {[
-          { key: "brief" as const, label: "SEO Brief Generator" },
           { key: "audit" as const, label: "SEO Audit Checklist" },
           { key: "reference" as const, label: "On-Page Reference" },
           { key: "grader" as const, label: "Stop Slop" },
@@ -1288,196 +1277,6 @@ export default function SEOToolsPage() {
           </button>
         ))}
       </div>
-
-      {/* Brief Generator Tab */}
-      {activeTab === "brief" && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className={`rounded-xl border p-6 shadow-sm ${dark ? "bg-[#111827] border-[#1e293b]" : "bg-white border-slate-200"}`}>
-            <h2 className={`mb-4 text-sm font-semibold uppercase tracking-wider ${dark ? "text-slate-500" : "text-slate-400"}`}>SEO Brief Generator</h2>
-
-            <div className="space-y-4">
-              <div>
-                <label className={`mb-1.5 block text-sm font-medium ${dark ? "text-slate-300" : "text-slate-700"}`}>Primary Keyword</label>
-                <input
-                  type="text"
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  placeholder="e.g., SEO agency Atlanta"
-                  className={`w-full rounded-lg border px-4 py-2.5 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
-                    dark ? "bg-[#1a2234] border-[#2d3748] text-white" : "bg-white border-slate-200 text-slate-900"
-                  }`}
-                />
-              </div>
-
-              <div>
-                <label className={`mb-1.5 block text-sm font-medium ${dark ? "text-slate-300" : "text-slate-700"}`}>Search Intent</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {intentOptions.map((opt) => (
-                    <button
-                      key={opt}
-                      onClick={() => setIntent(opt)}
-                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition-all ${
-                        intent === opt
-                          ? dark
-                            ? "border-blue-500 bg-blue-500/10 text-blue-400 ring-1 ring-blue-500"
-                            : "border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500"
-                          : dark
-                            ? "border-[#2d3748] text-slate-400 hover:bg-[#1a2234]"
-                            : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className={`mb-1.5 block text-sm font-medium ${dark ? "text-slate-300" : "text-slate-700"}`}>Target Persona</label>
-                <select
-                  value={persona}
-                  onChange={(e) => setPersona(e.target.value)}
-                  className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
-                    dark ? "bg-[#1a2234] border-[#2d3748] text-white" : "bg-white border-slate-200 text-slate-900"
-                  }`}
-                >
-                  <option value="">Select persona...</option>
-                  {personaOptions.map((p) => (
-                    <option key={p} value={p}>{p}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className={`mb-1.5 block text-sm font-medium ${dark ? "text-slate-300" : "text-slate-700"}`}>Content Format</label>
-                <select
-                  value={format}
-                  onChange={(e) => setFormat(e.target.value)}
-                  className={`w-full rounded-lg border px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
-                    dark ? "bg-[#1a2234] border-[#2d3748] text-white" : "bg-white border-slate-200 text-slate-900"
-                  }`}
-                >
-                  <option value="">Select format...</option>
-                  {formatOptions.map((f) => (
-                    <option key={f} value={f}>{f}</option>
-                  ))}
-                </select>
-              </div>
-
-              <button
-                onClick={() => setBriefGenerated(true)}
-                disabled={!keyword || !intent || !persona || !format}
-                className={`w-full rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
-                  keyword && intent && persona && format
-                    ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:opacity-90"
-                    : dark ? "bg-[#1a2234] text-slate-500 cursor-not-allowed" : "bg-slate-100 text-slate-400 cursor-not-allowed"
-                }`}
-              >
-                Generate SEO Brief
-              </button>
-            </div>
-          </div>
-
-          {/* Generated Brief */}
-          <div className={`rounded-xl border shadow-sm ${dark ? "bg-[#111827] border-[#1e293b]" : "bg-white border-slate-200"}`}>
-            <div className={`border-b px-6 py-4 ${dark ? "border-[#1e293b]" : "border-slate-100"}`}>
-              <h2 className={`text-sm font-semibold uppercase tracking-wider ${dark ? "text-slate-500" : "text-slate-400"}`}>Generated Brief</h2>
-            </div>
-            {!briefGenerated ? (
-              <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-                <svg className={`h-12 w-12 ${dark ? "text-slate-700" : "text-slate-200"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-                <p className={`mt-3 text-sm ${dark ? "text-slate-500" : "text-slate-400"}`}>Fill in the form and click Generate</p>
-              </div>
-            ) : (
-              <div className="p-6 space-y-5">
-                <div>
-                  <p className={`text-xs font-semibold uppercase tracking-wider ${dark ? "text-blue-400" : "text-blue-600"}`}>Primary Keyword</p>
-                  <p className={`mt-1 text-lg font-bold ${dark ? "text-white" : "text-slate-900"}`}>{keyword}</p>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { label: "Intent", value: intent },
-                    { label: "Persona", value: persona },
-                    { label: "Format", value: format },
-                  ].map((item) => (
-                    <div key={item.label} className={`rounded-lg p-3 ${dark ? "bg-[#1a2234]" : "bg-slate-50"}`}>
-                      <p className={`text-[10px] font-semibold uppercase tracking-wider ${dark ? "text-slate-500" : "text-slate-400"}`}>{item.label}</p>
-                      <p className={`mt-1 text-sm font-medium ${dark ? "text-slate-300" : "text-slate-700"}`}>{item.value}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div>
-                  <p className={`text-xs font-semibold uppercase tracking-wider mb-2 ${dark ? "text-slate-500" : "text-slate-400"}`}>Suggested Title</p>
-                  <p className={`text-sm font-medium rounded-lg px-4 py-3 ${dark ? "text-white bg-[#1a2234]" : "text-slate-900 bg-slate-50"}`}>
-                    {intent === "Informational" && `What to Know About ${keyword}: A Complete Guide`}
-                    {intent === "Commercial" && `Best ${keyword} Services: How to Choose the Right Partner`}
-                    {intent === "Transactional" && `${keyword} -- Get Results That Impact Your Bottom Line`}
-                    {intent === "Navigational" && `${keyword} -- Expert Services from MarketWake`}
-                  </p>
-                </div>
-
-                <div>
-                  <p className={`text-xs font-semibold uppercase tracking-wider mb-2 ${dark ? "text-slate-500" : "text-slate-400"}`}>Suggested Outline</p>
-                  <div className="space-y-2">
-                    {[
-                      "H1: [Title with primary keyword]",
-                      `H2: What Is ${keyword}? (Definition + Context)`,
-                      `H2: Why ${keyword} Matters for ${persona}s`,
-                      `H2: How MarketWake Approaches ${keyword}`,
-                      "H2: Real Results: Client Case Study",
-                      "H2: Common Mistakes to Avoid",
-                      `H2: Getting Started with ${keyword}`,
-                      "H2: Key Takeaways",
-                      "CTA: Book a free strategy session",
-                    ].map((item, i) => (
-                      <div key={i} className={`flex items-center gap-2 text-sm ${dark ? "text-slate-300" : "text-slate-600"}`}>
-                        <span className={`text-xs w-5 ${dark ? "text-slate-500" : "text-slate-400"}`}>{i + 1}.</span>
-                        {item}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className={`text-xs font-semibold uppercase tracking-wider mb-2 ${dark ? "text-slate-500" : "text-slate-400"}`}>SEO Checklist</p>
-                  <div className="space-y-1.5">
-                    {[
-                      `Include "${keyword}" in title, H1, first 100 words`,
-                      "Meta description: 150-160 chars with keyword + CTA",
-                      "URL: /blog/" + keyword.toLowerCase().replace(/\s+/g, "-"),
-                      "Word count: 1,500-2,500 words",
-                      "Internal links: 2-3 to relevant MW service pages",
-                      "Image alt text with keyword variations",
-                    ].map((item, i) => (
-                      <div key={i} className={`flex items-start gap-2 text-sm ${dark ? "text-slate-300" : "text-slate-600"}`}>
-                        <svg className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
-                        {item}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className={`rounded-lg p-4 border ${
-                  dark ? "bg-blue-500/10 border-blue-500/20" : "bg-blue-50 border-blue-100"
-                }`}>
-                  <p className={`text-xs font-semibold mb-1 ${dark ? "text-blue-400" : "text-blue-700"}`}>Persona Note</p>
-                  <p className={`text-sm ${dark ? "text-blue-300" : "text-blue-600"}`}>
-                    {persona === "Business Owner" && "Keep language conversational. Lead with outcomes and ROI. Avoid marketing jargon."}
-                    {persona === "Marketing Director" && "Use peer-level language. Include methodology and frameworks. More technical depth welcome."}
-                    {persona === "Ecommerce Brand" && "Be specific about platforms and metrics (ROAS, CAC, LTV). Fast-paced, tactical, data-heavy."}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Audit Checklist Tab */}
       {activeTab === "audit" && (

@@ -22,7 +22,6 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: "grid" },
   { href: "/calendar", label: "Content Calendar", icon: "calendar" },
   { href: "/create", label: "Create Content", icon: "edit" },
-  { href: "/ideation", label: "Ideation", icon: "bulb" },
   { href: "/brand", label: "Brand Guidelines", icon: "book" },
   { href: "/personas", label: "Audience Personas", icon: "users" },
   { href: "/seo", label: "SEO / AEO Tools", icon: "search" },
